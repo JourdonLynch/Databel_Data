@@ -138,3 +138,187 @@ SELECT
       `Avg Monthly GB Download` >= 5
       AND `Avg Monthly GB Download` < 10
       AND `Unlimited Data Plan` = FALSE),2)
+
+
+–Churn Rate by payment type
+
+WITH
+  Payment_Churn AS (
+  SELECT
+    COUNT(`Customer ID`) AS `Count of Churn`,
+    `Payment Method`,
+  FROM
+    Databel.Data
+  WHERE
+    `Churn Label` = TRUE
+  GROUP BY
+    `Payment Method`)
+
+SELECT
+  P.`Payment Method`, ROUND(`Count of Churn`*(100)/ COUNT(`Customer ID`),2) AS `Churn Rate`
+FROM
+  Payment_Churn AS P
+FULL JOIN
+  Databel.Data AS D
+ON
+  (P.`Payment Method` = D.`Payment Method`)
+GROUP BY
+  `Count of Churn`,
+  `Payment Method`
+ORDER BY
+  `Churn Rate` DESC
+
+
+
+ – Churn Rate by contract type
+
+WITH
+  Contract_Churn AS(
+  SELECT
+    COUNT(`Customer ID`) AS `Count of Churn`,
+    `Contract Type`,
+  FROM
+    Databel.Data
+  WHERE
+    `Churn Label` = TRUE
+  GROUP BY
+    `Contract Type`)
+SELECT
+  ROUND(`Count of Churn`*(100)/ COUNT(`Customer ID`),2) AS `Churn Rate`,
+  C.`Contract Type`
+FROM
+  Contract_Churn AS C
+FULL JOIN
+  Databel.Data AS D
+ON
+  (C.`Contract Type` = D.`Contract Type`)
+GROUP BY
+  `Count of Churn`,
+  `Contract Type`
+ORDER BY
+  `Churn Rate` DESC
+
+
+–Churn Rate of customers in group
+
+  ROUND((
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Churn Label` = TRUE
+      AND `Group` = TRUE) * (100) / (
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Group` = TRUE),2)
+
+
+–Churn Rate of Customers not in Group
+
+SELECT
+  ROUND((
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Churn Label` = TRUE
+      AND `Group` = FALSE) * (100) / (
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Group` = FALSE),2)
+
+
+--Chur rate by Churn Category
+
+--Competitor
+
+SELECT
+  ROUND((
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Category` = "Competitor" )*(100) / (
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Label` = TRUE),2) AS `Competitor Churn Rate`
+
+--Price
+
+SELECT
+  ROUND((
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Category` = "Price" )*(100) / (
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Label` = TRUE),2) AS `Price Churn Rate`
+
+--Attitude
+
+SELECT
+  ROUND((
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Category` = "Attitude" )*(100) / (
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Label` = TRUE),2) AS `Attitude Churn Rate`
+
+--Dissatisfaction
+SELECT
+  ROUND((
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Category` = "Dissatisfaction" )*(100) / (
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Label` = TRUE),2) AS `Dissatisfaction Churn Rate`
+
+
+--Other
+
+SELECT
+  ROUND((
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Category` = "Other" )*(100) / (
+  SELECT
+    COUNT(`Customer ID`)
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Label` = TRUE),2) AS `Other Churn Rate`
