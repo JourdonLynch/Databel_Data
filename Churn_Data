@@ -1,0 +1,140 @@
+–Average account length of all accounts
+
+SELECT
+  ROUND(AVG(`Account Length _in months_`),2)
+FROM
+  Databel.Data
+
+
+–Average account length of churned accounts
+
+SELECT
+  ROUND(AVG(`Account Length _in months_`),2)
+FROM
+  business-intelligence-402301.Databel.Data
+WHERE
+  `Churn Label` = TRUE
+
+
+-Churn rate of all customers
+SELECT
+  ROUND((
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Churn Label` = TRUE)*(100) / (
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data),2)
+
+
+–Churn rate of customers who are Internationally active without an international plan
+
+SELECT
+ ROUND((
+   SELECT
+     COUNT(`Customer ID`)
+   FROM
+     business-intelligence-402301.Databel.Data
+   WHERE
+     `Intl Active`= TRUE
+     AND `Intl Plan` = FALSE
+     AND `Churn Label` = TRUE)*(100) / (
+   SELECT
+     COUNT(`Customer ID`)
+   FROM
+     business-intelligence-402301.Databel.Data
+   WHERE
+     `Intl Active`= TRUE
+     AND `Intl Plan` = FALSE),2)
+
+
+–Churn rate of customers who are not internationally active with an international plan
+
+SELECT
+ ROUND((
+   SELECT
+     COUNT(`Customer ID`)
+   FROM
+     business-intelligence-402301.Databel.Data
+   WHERE
+     `Intl Active`= FALSE
+     AND `Intl Plan` = TRUE
+     AND `Churn Label` = TRUE)*(100) / (
+   SELECT
+     COUNT(`Customer ID`)
+   FROM
+     business-intelligence-402301.Databel.Data
+   WHERE
+     `Intl Active`= FALSE
+     AND `Intl Plan` = TRUE),2)
+
+
+–Churn rate of customers with 0-5 GB download without an unlimited data plan
+
+SELECT
+  ROUND((
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Avg Monthly GB Download` < 5
+      AND `Unlimited Data Plan` = FALSE
+      AND `Churn Label` = TRUE)*(100) / (
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Avg Monthly GB Download` < 5
+      AND `Unlimited Data Plan` = FALSE),2)
+
+
+–Churn rate of customers with 5-10 GB download with an unlimited data plan
+
+SELECT
+  ROUND((
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Avg Monthly GB Download` >= 5
+      AND `Avg Monthly GB Download` < 10
+      AND `Unlimited Data Plan` = TRUE
+      AND `Churn Label` = TRUE)*(100) / (
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Avg Monthly GB Download` >= 5
+      AND `Avg Monthly GB Download` < 10
+      AND `Unlimited Data Plan` = TRUE),2)
+
+
+–Churn rate of customers with 5-10 GB download without an unlimited data plan
+
+SELECT
+  ROUND((
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Avg Monthly GB Download` >= 5
+      AND `Avg Monthly GB Download` < 10
+      AND `Unlimited Data Plan` = FALSE
+      AND `Churn Label` = TRUE)*(100) / (
+    SELECT
+      COUNT(`Customer ID`)
+    FROM
+      Databel.Data
+    WHERE
+      `Avg Monthly GB Download` >= 5
+      AND `Avg Monthly GB Download` < 10
+      AND `Unlimited Data Plan` = FALSE),2)
