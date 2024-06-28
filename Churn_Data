@@ -236,89 +236,35 @@ SELECT
       `Group` = FALSE),2)
 
 
---Chur rate by Churn Category
+--Churn rate by Churn Category
 
---Competitor
-
+WITH
+  Churn_Reasons AS(
+  SELECT
+    COUNT(`Customer ID`) AS Number,
+    `Churn Category`
+  FROM
+    `Databel.Data`
+  WHERE
+    `Churn Category` IS NOT NULL
+  GROUP BY
+    `Churn Category` )
 SELECT
-  ROUND((
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Category` = "Competitor" )*(100) / (
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Label` = TRUE),2) AS `Competitor Churn Rate`
-
---Price
-
-SELECT
-  ROUND((
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Category` = "Price" )*(100) / (
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Label` = TRUE),2) AS `Price Churn Rate`
-
---Attitude
-
-SELECT
-  ROUND((
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Category` = "Attitude" )*(100) / (
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Label` = TRUE),2) AS `Attitude Churn Rate`
-
---Dissatisfaction
-SELECT
-  ROUND((
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Category` = "Dissatisfaction" )*(100) / (
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Label` = TRUE),2) AS `Dissatisfaction Churn Rate`
-
-
---Other
-
-SELECT
-  ROUND((
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Category` = "Other" )*(100) / (
-  SELECT
-    COUNT(`Customer ID`)
-  FROM
-    `Databel.Data`
-  WHERE
-    `Churn Label` = TRUE),2) AS `Other Churn Rate`
+  CASE
+    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 1 THEN "Competitor"
+    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 2 THEN "Attitude"
+    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 3 THEN "Dissatisfaction"
+    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 4 THEN "Price"
+    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 5 THEN "Other"
+END
+  ,
+  ROUND(Churn_Reasons.Number*(100)/COUNT(`Customer ID`),2) AS `Churn Rate`
+FROM
+  Churn_Reasons,
+  Databel.Data AS D
+WHERE
+  `Churn Label` = TRUE
+GROUP BY
+  Churn_Reasons.Number
+ORDER BY
+  Churn_Reasons.Number DESC
