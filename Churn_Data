@@ -11,7 +11,7 @@ FROM
 SELECT
   ROUND(AVG(`Account Length _in months_`),2)
 FROM
-  business-intelligence-402301.Databel.Data
+  Databel.Data
 WHERE
   `Churn Label` = TRUE
 
@@ -38,7 +38,7 @@ SELECT
    SELECT
      COUNT(`Customer ID`)
    FROM
-     business-intelligence-402301.Databel.Data
+     Databel.Data
    WHERE
      `Intl Active`= TRUE
      AND `Intl Plan` = FALSE
@@ -46,7 +46,7 @@ SELECT
    SELECT
      COUNT(`Customer ID`)
    FROM
-     business-intelligence-402301.Databel.Data
+     Databel.Data
    WHERE
      `Intl Active`= TRUE
      AND `Intl Plan` = FALSE),2)
@@ -59,7 +59,7 @@ SELECT
    SELECT
      COUNT(`Customer ID`)
    FROM
-     business-intelligence-402301.Databel.Data
+     Databel.Data
    WHERE
      `Intl Active`= FALSE
      AND `Intl Plan` = TRUE
@@ -67,7 +67,7 @@ SELECT
    SELECT
      COUNT(`Customer ID`)
    FROM
-     business-intelligence-402301.Databel.Data
+     Databel.Data
    WHERE
      `Intl Active`= FALSE
      AND `Intl Plan` = TRUE),2)
