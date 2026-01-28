@@ -207,12 +207,11 @@ SELECT
             AND `Unlimited Data Plan` = FALSE
         ),
       2),
-    '%')
+    '%') AS churn_rate
 
 
 Churn Rate by payment type:
 
-WITH
 SELECT
   `Payment Method`,
   CONCAT(
@@ -225,36 +224,33 @@ SELECT
     AS churn_rate
 FROM Databel.Data
 GROUP BY `Payment Method`
-ORDER BY churn_rate DESC
-
-
- – Churn Rate by contract type
-
-WITH
-  Contract_Churn AS(
-  SELECT
-    COUNT(`Customer ID`) AS `Count of Churn`,
-    `Contract Type`,
-  FROM
-    Databel.Data
-  WHERE
-    `Churn Label` = TRUE
-  GROUP BY
-    `Contract Type`)
-SELECT
-  ROUND(`Count of Churn`*(100)/ COUNT(`Customer ID`),2) AS `Churn Rate`,
-  C.`Contract Type`
-FROM
-  Contract_Churn AS C
-FULL JOIN
-  Databel.Data AS D
-ON
-  (C.`Contract Type` = D.`Contract Type`)
-GROUP BY
-  `Count of Churn`,
-  `Contract Type`
 ORDER BY
-  `Churn Rate` DESC
+  ROUND(
+    SUM(CASE WHEN `Churn label` = TRUE THEN 1 ELSE 0 END) * 100.0
+    / COUNT(*),
+    2
+  ) DESC
+
+Churn Rate by contract type:
+
+SELECT
+  `Contract Type`,
+  CONCAT(
+    ROUND(
+      SUM(CASE WHEN `Churn label` = TRUE THEN 1 ELSE 0 END)
+        * (100)
+        / COUNT(*),
+      2),
+    '%')
+    AS churn_rate
+FROM Databel.Data
+GROUP BY `Contract Type`
+ORDER BY
+  ROUND(
+    SUM(CASE WHEN `Churn label` = TRUE THEN 1 ELSE 0 END) * 100.0
+    / COUNT(*),
+    2
+  ) DESC
 
 
 –Churn Rate of customers in group
