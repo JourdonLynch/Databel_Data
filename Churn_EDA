@@ -57,119 +57,39 @@ GROUP BY `Intl Plan`
 ORDER BY `Intl Plan`;
 ---
 
-Churn rate of customers with 0-5 GB download with an unlimited data plan:
+Churn rate of customers with 0-5 GB, by unlimited plan status:
+
 SELECT
+  `Unlimited Data Plan`,
   CONCAT(
     ROUND(
-      (
-        SELECT
-          COUNT(`Customer ID`)
-        FROM
-          Databel.Data
-        WHERE
-          `Avg Monthly GB Download` < 5
-          AND `Unlimited Data Plan` = FALSE
-          AND `Churn Label` = TRUE
-      ) * (100)
-        / (
-          SELECT
-            COUNT(`Customer ID`)
-          FROM
-            Databel.Data
-          WHERE
-            `Avg Monthly GB Download` < 5
-            AND `Unlimited Data Plan` = TRUE
-        ),
+      100.0
+        * SUM(CASE WHEN `Churn Label` = TRUE THEN 1 ELSE 0 END)
+        / COUNT(`Customer ID`),
       2),
-    '%')
-
-
-Churn rate of customers with 0-5 GB download without an unlimited data plan:
-SELECT
-  CONCAT(
-    ROUND(
-      (
-        SELECT
-          COUNT(`Customer ID`)
-        FROM
-          Databel.Data
-        WHERE
-          `Avg Monthly GB Download` < 5
-          AND `Unlimited Data Plan` = FALSE
-          AND `Churn Label` = TRUE
-      ) * (100)
-        / (
-          SELECT
-            COUNT(`Customer ID`)
-          FROM
-            Databel.Data
-          WHERE
-            `Avg Monthly GB Download` < 5
-            AND `Unlimited Data Plan` = FALSE
-        ),
-      2),
-    '%')
+    '%') AS churn_rate
+FROM Databel.Data
+WHERE `Avg Monthly GB Download` <= 5
+GROUP BY `Unlimited Data Plan`
+ORDER BY `Unlimited Data Plan` DESC;
 
          
 
-Churn rate of customers with 5-10 GB download with an unlimited data plan:
+Churn rate of customers with 5-10 GB, by unlimited data plan:
 
 SELECT
+  `Unlimited Data Plan`,
   CONCAT(
     ROUND(
-      (
-        SELECT
-          COUNT(`Customer ID`)
-        FROM
-          Databel.Data
-        WHERE
-          `Avg Monthly GB Download` >= 5
-          AND `Avg Monthly GB Download` < 10
-          AND `Unlimited Data Plan` = TRUE
-          AND `Churn Label` = TRUE
-      ) * (100)
-        / (
-          SELECT
-            COUNT(`Customer ID`)
-          FROM
-            Databel.Data
-          WHERE
-            `Avg Monthly GB Download` >= 5
-            AND `Avg Monthly GB Download` < 10
-            AND `Unlimited Data Plan` = TRUE
-        ),
-      2),
-    '%')
-
-
-Churn rate of customers with 5-10 GB download without an unlimited data plan:
-
-SELECT
-  CONCAT(
-    ROUND(
-      (
-        SELECT
-          COUNT(`Customer ID`)
-        FROM
-          Databel.Data
-        WHERE
-          `Avg Monthly GB Download` >= 5
-          AND `Avg Monthly GB Download` < 10
-          AND `Unlimited Data Plan` = FALSE
-          AND `Churn Label` = TRUE
-      ) * (100)
-        / (
-          SELECT
-            COUNT(`Customer ID`)
-          FROM
-            Databel.Data
-          WHERE
-            `Avg Monthly GB Download` >= 5
-            AND `Avg Monthly GB Download` < 10
-            AND `Unlimited Data Plan` = FALSE
-        ),
+      100.0
+        * SUM(CASE WHEN `Churn Label` = TRUE THEN 1 ELSE 0 END)
+        / COUNT(`Customer ID`),
       2),
     '%') AS churn_rate
+FROM Databel.Data
+WHERE `Avg Monthly GB Download` > 5 AND `Avg Monthly GB Download` <= 10
+GROUP BY `Unlimited Data Plan`
+ORDER BY `Unlimited Data Plan` DESC;
 
 
 Churn Rate by payment type:
@@ -227,35 +147,25 @@ GROUP BY `Group`
 ORDER BY `Group`;
 
 
---Churn rate by Churn Category
+Churn rate by Churn Category:
 
-WITH
-  Churn_Reasons AS(
+WITH churn_reasons AS (
   SELECT
-    COUNT(`Customer ID`) AS Number,
-    `Churn Category`
-  FROM
-    `Databel.Data`
+    `Churn Category`,
+    COUNT(*) AS churn_count
+  FROM Databel.Data
   WHERE
-    `Churn Category` IS NOT NULL
+    `Churn Label` = TRUE
+    AND `Churn Category` IS NOT NULL
   GROUP BY
-    `Churn Category` )
+    `Churn Category`
+)
+
 SELECT
-  CASE
-    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 1 THEN "Competitor"
-    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 2 THEN "Attitude"
-    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 3 THEN "Dissatisfaction"
-    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 4 THEN "Price"
-    WHEN RANK()OVER(ORDER BY Churn_Reasons.Number DESC ) = 5 THEN "Other"
-END
-  ,
-  ROUND(Churn_Reasons.Number*(100)/COUNT(`Customer ID`),2) AS `Churn Rate`
-FROM
-  Churn_Reasons,
-  Databel.Data AS D
-WHERE
-  `Churn Label` = TRUE
-GROUP BY
-  Churn_Reasons.Number
-ORDER BY
-  Churn_Reasons.Number DESC
+  `Churn Category`,
+  ROUND(
+    churn_count * 100.0 / SUM(churn_count) OVER (),
+    2
+  ) AS `Churn Rate`
+FROM churn_reasons
+ORDER BY churn_count DESC;
