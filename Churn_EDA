@@ -1,4 +1,4 @@
-Average account length of all accounts:
+-- Average account length of all accounts
 
 SELECT
   ROUND(AVG(`Account Length _in months_`),2)
@@ -6,7 +6,7 @@ FROM
   Databel.Data
 
 
-Average account length of churned accounts:
+-- Average account length of churned accounts
 
 SELECT
   ROUND(AVG(`Account Length _in months_`),2) AS avg_account_length
@@ -16,7 +16,7 @@ WHERE
   `Churn Label` = TRUE
 
 
-Churn rate of all customers:
+-- Churn rate of all customers
 
 SELECT
  CONCAT(
@@ -39,7 +39,7 @@ SELECT
    "%") AS churn_rate
 
 
-Churn rate of internationally active customers, by international plan status:
+-- Churn rate among internationally active customers by international plan status
 
 SELECT
   `Intl Plan`,
@@ -55,9 +55,9 @@ FROM Databel.Data
 WHERE `Intl Active` = TRUE
 GROUP BY `Intl Plan`
 ORDER BY `Intl Plan`;
----
 
-Churn rate of customers with 0-5 GB, by unlimited plan status:
+
+-- Churn rate of customers with 0-5 GB, by unlimited plan status
 
 SELECT
   `Unlimited Data Plan`,
@@ -75,7 +75,7 @@ ORDER BY `Unlimited Data Plan` DESC;
 
          
 
-Churn rate of customers with 5-10 GB, by unlimited data plan:
+-- Churn rate of customers with 5-10 GB, by unlimited data plan
 
 SELECT
   `Unlimited Data Plan`,
@@ -92,7 +92,7 @@ GROUP BY `Unlimited Data Plan`
 ORDER BY `Unlimited Data Plan` DESC;
 
 
-Churn Rate by payment type:
+-- Churn Rate by payment type
 
 SELECT
   `Payment Method`,
@@ -113,7 +113,7 @@ ORDER BY
     2
   ) DESC
 
-Churn Rate by contract type:
+-- Churn Rate by contract type
 
 SELECT
   `Contract Type`,
@@ -135,7 +135,7 @@ ORDER BY
   ) DESC
 
 
-Churn Rate of customers based on group status:
+-- Churn Rate of customers based on group status
 
  SELECT
   `Group`,
@@ -147,7 +147,7 @@ GROUP BY `Group`
 ORDER BY `Group`;
 
 
-Churn rate by Churn Category:
+-- Churn rate by Churn Category
 
 WITH churn_reasons AS (
   SELECT
